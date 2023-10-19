@@ -1,0 +1,144 @@
+swagger: '2.0'
+info:
+  title: Heroes on the Move API
+  description: 'Social media platform called Heroes on the Move designed to help military families find resources during their moving process. Used for COMS 6998 final project.'
+  version: 1.0.0
+schemes:
+  - https
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /searchPosts:
+    get:
+      summary: post search method
+      description: |
+        This API takes in a search query as a query parameter and returns zero or more posts that match the search query.
+      operationId: searchPosts
+      parameters:
+        - in: query
+          name: q
+          type: string
+          description: the string to be searched
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: search results
+          schema:
+            $ref: '#/definitions/SearchPostsResponse'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /searchUsers:
+    get:
+      summary: users search method
+      description: |
+        This API takes in a search query as a query parameter and returns zero or one users that match the search query for login.
+      operationId: searchUsers
+      parameters:
+        - in: query
+          name: q
+          type: string
+          description: the string to be searched
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: search results
+          schema:
+            $ref: '#/definitions/SearchUsersResponse'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /uploadPost:
+    put:
+      summary: post upload method
+      description: |
+        This API takes in the multi-part body sent to it (ex. a photo, description, and tags) and uploads it to an S3 bucket.
+      operationId: uploadPost
+      consumes:
+        - image/png
+        - image/jpg
+        - image/jpeg
+        - text/plain
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: S3 PUT operation response
+          schema:
+            type: object
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /uploadUser:
+    put:
+      summary: user upload method
+      description: |
+        This API takes in user information and uploads it to a database on the backend
+      operationId: uploadUser
+      consumes:
+        - text/plain
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: S3 PUT operation response
+          schema:
+            type: object
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  SearchPostsResponse:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          $ref: '#/definitions/Photo'
+  SearchUsersResponse:
+    type: object
+    properties:
+      results:
+        type: array
+        items:
+          type: string
+  Photo:
+    type: object
+    properties:
+      url:
+        type: string
+      labels:
+        type: array
+        items:
+          type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
